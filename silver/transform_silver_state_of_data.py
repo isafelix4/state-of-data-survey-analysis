@@ -19,7 +19,7 @@ job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
 # ============================================================
-# CONFIGURAÇÃO — troque pelo nome do seu bucket
+# CONFIGURAÇÃO 
 # ============================================================
 BUCKET = "fiap26-data-analytics-824232672586"
 
@@ -222,20 +222,8 @@ for year in [2023, 2024, 2025]:
 
     linhas_brutas = df.count()
 
-    # captura o arquivo de origem logo na leitura, antes de qualquer
-    # shuffle (o dropDuplicates mais abaixo é um) -- depois de um shuffle,
-    # input_file_name() perde o contexto e volta vazio
     df = df.withColumn("etl_source_file", F.input_file_name())
  
-    # um único select (em vez de várias chamadas encadeadas de
-    # withColumnRenamed) -- evita aprofundar demais o plano do Spark; foi
-    # exatamente isso que causou o StackOverflowError, com ~300
-    # renomeações encadeadas por cima de outras ~300 do trim logo depois.
-    # As colunas cruas podem ter ponto no nome (ex. "1.i.1_uf_onde_mora"),
-    # que o Spark interpreta como acesso a campo aninhado -- por isso o
-    # nome vem entre crases (`{old}`), forçando a leitura como um nome
-    # literal só. etl_source_file já está pronta, só passa direto (sem
-    # clean_col, senão perderia o "_" do começo).
     df = df.select(
         *[F.col(f"`{old}`").alias(clean_col(old)) for old in df.columns if old != "etl_source_file"],
         F.col("etl_source_file"),
@@ -254,8 +242,7 @@ for year in [2023, 2024, 2025]:
     df = df.select(*trim_exprs)
 
     # duplicatas: primeiro linha inteira repetida, depois id repetido
-    # (mantém a primeira ocorrência) — comum em respostas de formulário
-    # reenviadas duas vezes
+    # (mantém a primeira ocorrência)
     df = df.dropDuplicates()
     linhas_apos_dedup_total = df.count()
     if "id" in df.columns:
@@ -279,8 +266,6 @@ for year in [2023, 2024, 2025]:
             print(f"AVISO ({year}): {invalidas} respondente(s) com faixa_salarial em formato inesperado/inconsistente")
 
     # normaliza os campos booleanos (0/1 em 2023, TRUE/FALSE em 2024/2025)
-    # num único select -- ~280 campos, então NÃO pode ser um loop de
-    # withColumn (mesmo motivo do StackOverflowError acima)
     bool_exprs = []
     for c in df.columns:
         if c in BOOLEAN_FIELDS_SET:
@@ -294,8 +279,7 @@ for year in [2023, 2024, 2025]:
             bool_exprs.append(F.col(c))
     df = df.select(*bool_exprs)
 
-    # coluna de linhagem/auditoria — etl_source_file já foi capturada logo na
-    # leitura (antes do dropDuplicates); aqui só falta o timestamp
+    # coluna de linhagem/auditoria
     df = df.withColumn("etl_control_column", F.current_timestamp())
 
     print(f"--- ano {year}: {linhas_brutas} linhas brutas -> "
