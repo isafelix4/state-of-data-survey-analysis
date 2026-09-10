@@ -185,6 +185,7 @@ BOOLEAN_FIELDS = [
     "tempo_gasto_ds_gerenciamento", "tempo_gasto_ds_infraestrutura", "tempo_gasto_ds_llm",
     "servico_cloud_aws", "servico_cloud_google", "servico_cloud_azure", "servico_cloud_oracle",
     "servico_cloud_ibm", "servico_cloud_sem_uso", "servico_cloud_propria",
+    "atua_como_gestor",
 ]
 BOOLEAN_FIELDS_SET = set(BOOLEAN_FIELDS)
 
@@ -278,6 +279,14 @@ for year in [2023, 2024, 2025]:
         else:
             bool_exprs.append(F.col(c))
     df = df.select(*bool_exprs)
+
+    if year == 2023 and "vive_no_estado_de_formacao" in df.columns:
+        df = df.withColumn(
+            "vive_no_estado_de_formacao",
+            F.when(F.col("vive_no_estado_de_formacao") == 1, F.lit(0))
+             .when(F.col("vive_no_estado_de_formacao") == 0, F.lit(1))
+             .otherwise(None)
+        )
 
     # coluna de linhagem/auditoria
     df = df.withColumn("etl_control_column", F.current_timestamp())
