@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[DTAT] Tech Challenge Fase 3 — Mercado de Dados no Brasil</title>
+<style>
+  :root{
+    color-scheme: light;
+    --surface-1:#fcfcfb;
+    --page:#f4f5f7;
+    --text-primary:#0b0b0b;
+    --text-secondary:#52514e;
+    --muted:#898781;
+    --grid:#e6e6e2;
+    --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6;
+    --s1:#2a78d6; /* blue */
+    --s2:#eb6834; /* orange */
+    --s3:#1baf7a; /* aqua */
+    --s4:#eda100; /* yellow */
+    --s5:#e87ba4; /* magenta */
+    --s6:#4a3aa7; /* violet */
+    --good:#0ca30c;
+    --critical:#d03b3b;
+    --navy:#0f2540;
+    --navy-2:#16345c;
+    --track:#edece7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page);
+    color:var(--text-primary);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  nav .navwrap{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:2px;overflow-x:auto;white-space:nowrap;}
+  nav a{
+    color:var(--text-secondary);text-decoration:none;font-size:12.5px;font-weight:600;
+    padding:14px 10px;display:inline-block;border-bottom:2px solid transparent;
+  }
+  nav a:hover{color:var(--navy-2);}
+  nav a.brand{color:var(--navy);font-weight:800;padding-right:18px;border-right:1px solid var(--border);margin-right:4px;}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    background:linear-gradient(135deg,var(--navy) 0%, var(--navy-2) 55%, #1d4a7d 100%);
+    color:#fff;padding:72px 0 56px;
+  }
+  header.hero .kicker{
+    text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:700;
+    color:#9fc4ee;margin:0 0 14px;
+  }
+  header.hero h1{font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 14px;font-weight:800;max-width:900px;}
+  header.hero p.lead{font-size:17px;color:#dce9f7;max-width:760px;margin:0 0 28px;line-height:1.55;}
+  .authors{font-size:13px;color:#b9d3ee;margin-top:6px;}
+  .authors b{color:#fff;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:28px;margin-top:32px;}
+  .hero-meta .stat{min-width:130px;}
+  .hero-meta .stat .num{font-size:30px;font-weight:800;color:#fff;}
+  .hero-meta .stat .lbl{font-size:12px;color:#a9c9ea;margin-top:2px;}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:56px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 8px;}
+  h2.q{font-size:clamp(22px,3vw,30px);font-weight:800;margin:0 0 8px;line-height:1.25;max-width:880px;}
+  p.dek{color:var(--text-secondary);font-size:15px;max-width:820px;line-height:1.6;margin:0 0 32px;}
+
+  .grid{display:grid;gap:20px;}
+  .grid-2{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  @media(max-width:860px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--surface-1);border:1px solid var(--border);border-radius:14px;
+    padding:22px 22px 16px;
+  }
+  .card h3{font-size:14px;font-weight:700;margin:0 0 4px;color:var(--text-primary);}
+  .card .sub{font-size:12px;color:var(--muted);margin:0 0 14px;}
+  .chart-box{position:relative;width:100%;}
+  .chart-box.h280{height:280px;}
+  .chart-box.h240{height:240px;}
+  .chart-box.h220{height:220px;}
+  .chart-box.h190{height:190px;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+  @media(max-width:860px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+  .tile{
+    background:var(--surface-1);border:1px solid var(--border);border-radius:14px;
+    padding:18px 18px;
+  }
+  .tile .num{font-size:28px;font-weight:800;color:var(--navy-2);line-height:1.1;}
+  .tile .num.crit{color:var(--critical);}
+  .tile .num.good{color:var(--good);}
+  .tile .lbl{font-size:12.5px;color:var(--text-secondary);margin-top:6px;line-height:1.4;}
+
+  .callout{
+    border-radius:14px;padding:20px 24px;margin:24px 0;font-size:14.5px;line-height:1.6;
+  }
+  .callout.accent{background:#eaf2fc;border:1px solid #cfe0f4;color:#123a63;}
+  .callout.neutral{background:#f0efec;border:1px solid #e2e0d9;color:#3d3c38;}
+  .callout b{font-weight:800;}
+
+  .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;}
+
+  footer{padding:40px 0 60px;color:var(--text-secondary);font-size:12.5px;line-height:1.7;}
+  footer h4{font-size:13px;color:var(--text-primary);margin:0 0 8px;}
+  footer .cols{display:grid;grid-template-columns:2fr 1fr;gap:40px;}
+  @media(max-width:860px){footer .cols{grid-template-columns:1fr;}}
+  footer code{background:#eee;padding:1px 5px;border-radius:4px;font-size:11.5px;}
+
+  ::-webkit-scrollbar{height:8px;width:8px;}
+  ::-webkit-scrollbar-thumb{background:#ccc;border-radius:8px;}
+
+  /* ---------- CHART PRIMITIVES (pure HTML/CSS/SVG, no external libs) ---------- */
+  .chart-mount{width:100%;height:100%;overflow:hidden;}
+
+  .hbar{display:flex;flex-direction:column;justify-content:space-around;height:100%;}
+  .hbar-row{display:flex;align-items:center;gap:8px;}
+  .hbar-label{flex:0 0 40%;font-size:11.5px;color:var(--text-secondary);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hbar-track{flex:1;background:var(--track);border-radius:5px;height:13px;overflow:hidden;}
+  .hbar-fill{height:100%;border-radius:5px;}
+  .hbar-value{flex:0 0 62px;font-size:11.5px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+
+  .vbar{display:flex;align-items:flex-end;height:100%;gap:14px;}
+  .vbar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;min-width:0;}
+  .vbar-value{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .vbar-track{width:100%;max-width:64px;background:var(--track);border-radius:6px 6px 0 0;display:flex;align-items:flex-end;flex:1;overflow:hidden;}
+  .vbar-fill{width:100%;border-radius:6px 6px 0 0;}
+  .vbar-label{font-size:10.5px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.25;}
+
+  .donut-wrap{display:flex;align-items:center;gap:14px;height:100%;}
+  .donut-circle{width:96px;height:96px;border-radius:50%;flex-shrink:0;position:relative;}
+  .donut-circle::after{content:'';position:absolute;inset:19%;background:var(--surface-1);border-radius:50%;}
+  .donut-legend{flex:1;display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--text-secondary);overflow:hidden;min-width:0;}
+  .donut-legend .li{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;}
+  .donut-legend .li .lbl{overflow:hidden;text-overflow:ellipsis;}
+  .donut-legend .dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+  .donut-legend .pct{margin-left:auto;padding-left:6px;font-weight:700;color:var(--text-primary);flex-shrink:0;}
+
+  .linechart-wrap{height:100%;display:flex;flex-direction:column;}
+  .linechart-svg{flex:1;min-height:0;}
+  .linechart-legend{display:flex;gap:16px;justify-content:center;padding-top:4px;font-size:11.5px;color:var(--text-secondary);}
+  .linechart-legend .li{display:flex;align-items:center;gap:6px;}
+  .linechart-legend .dot{width:9px;height:9px;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navwrap">
+    <a class="brand" href="#top">DTAT</a>
+    <a href="#q1">1. Estrutura</a>
+    <a href="#q2">2. Perfis</a>
+    <a href="#q3">3. Diversidade</a>
+    <a href="#q4">4. Tecnologias</a>
+    <a href="#q5">5. IA Generativa</a>
+    <a href="#q6">6. Regiões &amp; Modelos</a>
+    <a href="#q7">7. Oportunidades</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="kicker">Tech Challenge · Fase 3 · Apresentação Executiva</p>
+    <h1>Como está estruturado o mercado brasileiro de Dados?</h1>
+    <p class="lead">Análise baseada no State of Data Survey Brasil (edições 2023, 2024 e 2025), consolidando 14.002 respondentes através das camadas bronze, silver e gold do pipeline de dados do projeto.</p>
+    <p class="authors"><b>Analistas de Dados:</b> Tiago Antônio dos Santos · Isabele Cristina Felix Santos · Thais Marcondes Narbonne</p>
+    <div class="hero-meta">
+      <div class="stat"><div class="num">14.002</div><div class="lbl">Respondentes (2023–2025)</div></div>
+      <div class="stat"><div class="num">23,5%</div><div class="lbl">São mulheres</div></div>
+      <div class="stat"><div class="num">89,5%</div><div class="lbl">Usam SQL</div></div>
+      <div class="stat"><div class="num">97,9%</div><div class="lbl">Usam IA generativa em 2025</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- =============== Q1 — ESTRUTURA DO MERCADO =============== -->
+<section id="q1">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 1</p>
+    <h2 class="q">Como está estruturado o mercado brasileiro de Dados?</h2>
+    <p class="dek">Antes de entrar em cada recorte específico, um retrato geral: em que tipo de empresa, setor, região e modelo de trabalho os profissionais de Dados estão hoje, e como se distribuem por senioridade e gênero.</p>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Setor de atuação</h3>
+        <p class="sub">Base: 12.841 respondentes</p>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstSetor"></div></div>
+      </div>
+      <div class="card">
+        <h3>Porte da empresa</h3>
+        <p class="sub">Nº de funcionários — base: 12.839</p>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstPorte"></div></div>
+      </div>
+      <div class="card">
+        <h3>Distribuição regional</h3>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstRegiao"></div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-3" style="margin-top:8px;">
+      <div class="card">
+        <h3>Senioridade</h3>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstSenioridade"></div></div>
+      </div>
+      <div class="card">
+        <h3>Gênero</h3>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstGenero"></div></div>
+      </div>
+      <div class="card">
+        <h3>Modelo de trabalho</h3>
+        <div class="chart-box h190"><div class="chart-mount" id="chartEstModelo"></div></div>
+      </div>
+    </div>
+
+    <div class="callout accent" style="margin-top:20px;">
+      O profissional de Dados "típico" no Brasil trabalha em uma <b>grande empresa</b> (44,6% em corporações com 3.000+ funcionários), dos setores de <b>Finanças/Bancos (19,9%)</b> ou <b>Tecnologia (18,4%)</b>, está no <b>Sudeste (62,3%)</b>, tem senioridade <b>Pleno/Sênior (72,7% somados)</b> e atua em regime <b>remoto ou híbrido (82,5% somados)</b>. É majoritariamente <b>homem (76,0%)</b> — o que estrutura o cenário de diversidade detalhado na Seção 3.
+    </div>
+  </div>
+</section>
+
+<!-- =============== Q2 =============== -->
+<section id="q2">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 2</p>
+    <h2 class="q">Quais perfis profissionais são mais valorizados pelo mercado?</h2>
+    <p class="dek">Volume de demanda e remuneração média respondem essa pergunta de ângulos diferentes: os cargos mais numerosos não são os mais bem pagos — engenharia e arquitetura de dados pagam mais, com volume bem menor.</p>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Cargos com maior volume no mercado</h3>
+        <p class="sub">% dos 10.173 respondentes que informaram o cargo atual</p>
+        <div class="chart-box h280"><div class="chart-mount" id="chartCargosVolume"></div></div>
+      </div>
+      <div class="card">
+        <h3>Salário médio por cargo (R$/mês)</h3>
+        <p class="sub">Cargos com 30+ respondentes na base</p>
+        <div class="chart-box h280"><div class="chart-mount" id="chartSalarioCargo"></div></div>
+      </div>
+    </div>
+
+    <div class="callout accent" style="margin-top:20px;">
+      <b>Arquitetos de Dados (R$ 16.553) e Engenheiros de ML/AI (R$ 15.886)</b> lideram a remuneração média — funções mais especializadas e com menor volume de profissionais. Analistas de Dados e Cientistas de Dados somam <b>41,9%</b> dos respondentes que informaram o cargo atual, as portas de entrada mais comuns da carreira.
+    </div>
+
+    <div class="grid grid-2" style="margin-top:8px;">
+      <div class="card">
+        <h3>Distribuição por senioridade</h3>
+        <div class="chart-box h220"><div class="chart-mount" id="chartSenioridadeDist"></div></div>
+      </div>
+      <div class="card">
+        <h3>Salário médio por senioridade (R$/mês)</h3>
+        <div class="chart-box h220"><div class="chart-mount" id="chartSalarioSenioridade"></div></div>
+      </div>
+    </div>
+    <p class="note">Dado não disponível no dataset: número de vagas em aberto por cargo. A "valorização" acima é inferida por volume de profissionais empregados e salário médio de mercado.</p>
+  </div>
+</section>
+
+<!-- =============== Q3 =============== -->
+<section id="q3">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 3</p>
+    <h2 class="q">Qual é o cenário de diversidade de gênero nas carreiras de dados?</h2>
+    <p class="dek">A participação feminina é minoritária e vem encolhendo ano após ano — com reflexo direto em senioridade, salário e na própria experiência relatada de carreira.</p>
+
+    <div class="stat-row">
+      <div class="tile"><div class="num crit">23,5%</div><div class="lbl">dos profissionais são mulheres (76,0% homens)</div></div>
+      <div class="tile"><div class="num crit">-2,5 p.p.</div><div class="lbl">queda na participação feminina, 2023 → 2025</div></div>
+      <div class="tile"><div class="num crit">18,6%</div><div class="lbl">salário médio menor para mulheres vs. homens</div></div>
+      <div class="tile"><div class="num crit">60,9%</div><div class="lbl">das mulheres relatam carreira prejudicada por gênero (vs. 3,8% dos homens)</div></div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Evolução da participação por gênero</h3>
+        <p class="sub">% da base, por edição do survey</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartGeneroEvolucao"></div></div>
+      </div>
+      <div class="card">
+        <h3>% de mulheres por nível de senioridade</h3>
+        <p class="sub">Participação feminina cai conforme a senioridade sobe</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartGeneroSenioridade"></div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:8px;">
+      <div class="card">
+        <h3>Raça/cor autodeclarada</h3>
+        <div class="chart-box h240"><div class="chart-mount" id="chartRacaDist"></div></div>
+      </div>
+      <div class="card">
+        <h3>Salário médio por gênero (R$/mês)</h3>
+        <div class="chart-box h240"><div class="chart-mount" id="chartSalarioGenero"></div></div>
+      </div>
+    </div>
+
+    <div class="callout neutral">
+      <b>Fonte complementar (camada silver):</b> entre 7.140 respondentes que responderam à pergunta multiescolha "quais aspectos da carreira foram prejudicados por...", 30,3% apontaram <b>gênero</b> e 21,4% <b>etnia/raça</b> como motivo. Essa granularidade não está na camada gold, por isso é citada separadamente com a fonte explícita.
+    </div>
+  </div>
+</section>
+
+<!-- =============== Q4 =============== -->
+<section id="q4">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 4</p>
+    <h2 class="q">Quais tecnologias apresentam maior adoção entre os profissionais?</h2>
+    <p class="dek">SQL e Python formam a base quase universal do mercado. Em nuvem, AWS lidera; em BI, Power BI é disparado o mais usado.</p>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Linguagens de programação</h3>
+        <p class="sub">% de adoção entre quem respondeu sobre linguagens</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartLinguagens"></div></div>
+      </div>
+      <div class="card">
+        <h3>Bancos de dados e armazenamento</h3>
+        <div class="chart-box h240"><div class="chart-mount" id="chartBancos"></div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-3" style="margin-top:8px;">
+      <div class="card">
+        <h3>Ferramentas de BI</h3>
+        <div class="chart-box h220"><div class="chart-mount" id="chartBI"></div></div>
+      </div>
+      <div class="card">
+        <h3>Cloud preferida</h3>
+        <div class="chart-box h220"><div class="chart-mount" id="chartCloud"></div></div>
+      </div>
+      <div class="card">
+        <h3>Técnicas (Cientistas de Dados)</h3>
+        <div class="chart-box h220"><div class="chart-mount" id="chartTecnicas"></div></div>
+      </div>
+    </div>
+    <p class="note">LLMs para negócio já aparecem em 35,3% dos cientistas de dados respondentes — à frente de NLP tradicional (34,4%).</p>
+  </div>
+</section>
+
+<!-- =============== Q5 =============== -->
+<section id="q5">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 5</p>
+    <h2 class="q">Qual é o índice de adoção de Inteligência Artificial e seu impacto?</h2>
+    <p class="dek">A adoção pessoal de IA generativa deu um salto entre 2023 e 2025 — mas a maturidade das empresas para tratá-la como prioridade estratégica ainda é parcial.</p>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Quem NÃO usa IA para produtividade pessoal</h3>
+        <p class="sub">% de respondentes por ano (base varia por ano)</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartTendenciaIA"></div></div>
+      </div>
+      <div class="card">
+        <h3>Como a IA é usada pessoalmente</h3>
+        <p class="sub">Entre quem usa IA — múltipla escolha, base: 8.514 respondentes</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartUsoPessoal"></div></div>
+      </div>
+    </div>
+
+    <div class="callout accent">
+      Em dois anos, a fração de profissionais que <b>não usa nenhuma ferramenta de IA generativa</b> no dia a dia caiu de <b>19,7% (2023) para 2,1% (2025)</b> — uma das mudanças mais rápidas registradas no survey.
+    </div>
+
+    <div class="grid grid-2" style="margin-top:8px;">
+      <div class="card">
+        <h3>Prioridade estratégica de IA nas empresas</h3>
+        <p class="sub">Visão de gestores — base: 2.593 respondentes</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartPrioridadeIA"></div></div>
+      </div>
+      <div class="card">
+        <h3>Principais barreiras à adoção de IA</h3>
+        <p class="sub">Base: 2.290 respondentes</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartMotivosDesuso"></div></div>
+      </div>
+    </div>
+    <p class="note">Apenas 49,3% das empresas tratam IA como prioridade real (alta ou entre as principais); 18,8% explicitamente não priorizam o tema.</p>
+  </div>
+</section>
+
+<!-- =============== Q6 =============== -->
+<section id="q6">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 6</p>
+    <h2 class="q">Existem diferenças relevantes entre regiões, senioridades ou modelos de trabalho?</h2>
+    <p class="dek">O Sudeste concentra a maior parte da força de trabalho e paga mais. O modelo remoto/híbrido paga mais que o presencial — mas o presencial está em ascensão.</p>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Salário médio por região (R$/mês)</h3>
+        <p class="sub">Sudeste concentra 62,3% da base</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartSalarioRegiao"></div></div>
+      </div>
+      <div class="card">
+        <h3>Salário médio por modelo de trabalho (R$/mês)</h3>
+        <div class="chart-box h240"><div class="chart-mount" id="chartSalarioModelo"></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Evolução do modelo de trabalho (2023–2025)</h3>
+      <p class="sub">% da base por ano — o presencial ganha espaço</p>
+      <div class="chart-box h240"><div class="chart-mount" id="chartEvolucaoModelo"></div></div>
+    </div>
+
+    <div class="callout neutral" style="margin-top:20px;">
+      Trabalho remoto e híbrido pagam, em média, <b>~59% a mais</b> que o modelo 100% presencial — mas a fatia de profissionais 100% remotos caiu de <b>46,3% (2023) para 39,7% (2025)</b>, enquanto o presencial subiu de 16,6% para 20,8% (+4,2 p.p.), um sinal de retorno ao escritório (RTO). Diferenças por senioridade estão detalhadas na Seção 2.
+    </div>
+  </div>
+</section>
+
+<!-- =============== Q7 =============== -->
+<section id="q7">
+  <div class="wrap">
+    <p class="eyebrow">Pergunta 7</p>
+    <h2 class="q">Quais oportunidades e desafios existem para empresas que investem em Dados e IA?</h2>
+    <p class="dek">Remuneração é, ao mesmo tempo, o principal motivo de atração e de insatisfação — e falta de maturidade de dados é o gargalo comum entre insatisfação de carreira e adoção de IA.</p>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>O que atrai talento</h3>
+        <p class="sub">Critério de escolha de emprego — base: 12.791</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartCriterios"></div></div>
+      </div>
+      <div class="card">
+        <h3>O que gera insatisfação</h3>
+        <p class="sub">Base: 3.762 respondentes</p>
+        <div class="chart-box h240"><div class="chart-mount" id="chartInsatisfacao"></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Principais desafios de quem já gerencia dados</h3>
+      <p class="sub">Base: 2.552 gestores</p>
+      <div class="chart-box h220"><div class="chart-mount" id="chartDesafiosGestao"></div></div>
+    </div>
+
+    <div class="callout accent" style="margin-top:20px;">
+      <b>Oportunidades:</b> competir por talento via remuneração + flexibilidade + carreira; investir em maturidade analítica junto com IA; capacitar times para reduzir a barreira de "falta de expertise" em IA; equidade de gênero como vantagem de employer branding.<br><br>
+      <b>Desafios:</b> gestão de expectativas do negócio sobre dados/IA; qualidade e confiabilidade de dados como gargalo recorrente; tendência de RTO pode reduzir atratividade para quem valoriza flexibilidade; concentração regional no Sudeste limita acesso a talento em outras regiões.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Metodologia e limitações</h4>
+        <p>Números extraídos das tabelas da camada <b>gold</b> (<code>tbl_fato_perfil_profissional</code>, <code>tbl_fato_tecnologias</code>, <code>tbl_fato_ia_generativa</code>, <code>tbl_fato_gestao</code>, <code>tbl_fato_satisfacao</code>, <code>tbl_fato_experiencia</code>, <code>tbl_dimensao_faixa_salarial</code>), exceto o dado de carreira prejudicada por gênero/raça (Seção 3), extraído da camada <b>silver</b> por não estar materializado na gold. Salário médio é o ponto médio de cada faixa salarial declarada. Perguntas de múltipla escolha têm percentuais calculados sobre respondentes únicos de cada bloco (indicado em cada gráfico), não sobre o total de 14.002. Número de vagas em aberto e turnover não estão disponíveis no dataset.</p>
+      </div>
+      <div>
+        <h4>Ficha técnica</h4>
+        <p><b>Título:</b> [DTAT] - Tech Challenge - Fase 3<br>
+        <b>Fonte:</b> State of Data Survey Brasil 2023–2025<br>
+        <b>Base:</b> 14.002 respondentes<br>
+        <b>Autores:</b> Tiago Antônio dos Santos, Isabele Cristina Felix Santos, Thais Marcondes Narbonne</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script id="survey-data" type="application/json">{"meta": {"total_respondentes": 14002, "respondentes_por_ano": {"2023": 5293, "2024": 5215, "2025": 3494}, "anos": [2023, 2024, 2025]}, "q1": {"cargos_volume": [{"cargo": "Analista de Dados/Data Analyst", "n": 2463, "pct": 24.2}, {"cargo": "Cientista de Dados/Data Scientist", "n": 1797, "pct": 17.7}, {"cargo": "Analista de BI/BI Analyst", "n": 1117, "pct": 11.0}, {"cargo": "Engenheiro de Dados/Data Engineer/Data Architect", "n": 1014, "pct": 10.0}, {"cargo": "Outra Opção", "n": 722, "pct": 7.1}, {"cargo": "Engenheiro de Dados/Arquiteto de Dados/Data Engineer/Data Architect", "n": 684, "pct": 6.7}, {"cargo": "Analista de Negócios/Business Analyst", "n": 520, "pct": 5.1}, {"cargo": "Analytics Engineer", "n": 502, "pct": 4.9}], "salario_cargo": [{"cargo": "Arquiteto de Dados/Data Architect", "salario_medio": 16553.0, "n": 76}, {"cargo": "Engenheiro de Machine Learning/ML Engineer/AI Engineer", "salario_medio": 15886.0, "n": 284}, {"cargo": "Engenheiro de Dados/Data Engineer/Data Architect", "salario_medio": 13264.0, "n": 1014}, {"cargo": "Data Product Manager/ Product Manager (PM/APM/DPM/GPM/PO)", "salario_medio": 12665.0, "n": 194}, {"cargo": "Engenheiro de Dados/Arquiteto de Dados/Data Engineer/Data Architect", "salario_medio": 11586.0, "n": 684}, {"cargo": "Analytics Engineer", "salario_medio": 11575.0, "n": 502}, {"cargo": "Cientista de Dados/Data Scientist", "salario_medio": 11572.0, "n": 1797}, {"cargo": "Desenvolvedor/ Engenheiro de Software/ Analista de Sistemas", "salario_medio": 10555.0, "n": 333}, {"cargo": "Outras Engenharias (não inclui dev)", "salario_medio": 10128.0, "n": 86}], "senioridade_dist": [{"senioridade": "Sênior", "n": 3849, "pct": 37.9}, {"senioridade": "Pleno", "n": 3543, "pct": 34.8}, {"senioridade": "Júnior", "n": 2432, "pct": 23.9}, {"senioridade": "Especialista/Staff+", "n": 349, "pct": 3.4}], "salario_senioridade": [{"senioridade": "Especialista/Staff+", "salario_medio": 19685.0, "n": 349}, {"senioridade": "Sênior", "salario_medio": 14117.0, "n": 3849}, {"senioridade": "Pleno", "salario_medio": 7898.0, "n": 3543}, {"senioridade": "Júnior", "salario_medio": 4048.0, "n": 2432}]}, "q2": {"genero_dist": [{"genero": "Masculino", "n": 10649, "pct": 76.0}, {"genero": "Feminino", "n": 3285, "pct": 23.5}, {"genero": "Prefiro não informar", "n": 44, "pct": 0.3}, {"genero": "Outro", "n": 24, "pct": 0.2}], "genero_evolucao": {"2023": {"Masculino": 75.1, "Feminino": 24.4, "Prefiro não informar": 0.3, "Outro": 0.2}, "2024": {"Masculino": 76.1, "Feminino": 23.5, "Prefiro não informar": 0.3, "Outro": 0.1}, "2025": {"Masculino": 77.5, "Feminino": 21.9, "Prefiro não informar": 0.4, "Outro": 0.2}}, "raca_dist": [{"grupo": "Branca", "n": 9163, "pct": 65.5}, {"grupo": "Parda", "n": 3302, "pct": 23.6}, {"grupo": "Preta", "n": 956, "pct": 6.8}, {"grupo": "Amarela", "n": 419, "pct": 3.0}, {"grupo": "Prefiro não informar", "n": 99, "pct": 0.7}, {"grupo": "Outra", "n": 35, "pct": 0.2}, {"grupo": "Indígena", "n": 26, "pct": 0.2}], "salario_genero": {"Feminino": {"salario_medio": 9908.0, "n": 2953}, "Masculino": {"salario_medio": 12165.0, "n": 9830}}, "genero_senioridade": {"Júnior": {"Masculino": 71.3, "Feminino": 28.2, "Prefiro não informar": 0.4, "Outro": 0.1}, "Pleno": {"Masculino": 74.8, "Feminino": 24.7, "Prefiro não informar": 0.3, "Outro": 0.2}, "Sênior": {"Masculino": 78.2, "Feminino": 21.3, "Prefiro não informar": 0.3, "Outro": 0.2}, "Especialista/Staff+": {"Masculino": 79.1, "Feminino": 20.0, "Prefiro não informar": 0.6, "Outro": 0.3}}, "carreira_prejudicada": {"nota_fonte": "Dado obtido na camada silver (pergunta multi-escolha \"quais aspectos prejudicaram sua carreira\"); base = respondentes que responderam a pergunta.", "n_respondentes_pergunta": 7140, "pct_apontou_genero_como_motivo": 30.3, "pct_apontou_etnia_raca_como_motivo": 21.4, "pct_apontou_pcd_como_motivo": 3.2, "pct_apontou_genero_como_motivo_por_genero_do_respondente": {"Masculino": {"n_respondentes_pergunta": 3810, "pct_prejudicado_por_genero": 3.8}, "Feminino": {"n_respondentes_pergunta": 3262, "pct_prejudicado_por_genero": 60.9}}}}, "q3": {"linguagens": [{"item": "SQL", "n": 8064, "pct_dos_que_responderam_categoria": 89.5}, {"item": "Python", "n": 7687, "pct_dos_que_responderam_categoria": 85.3}, {"item": "R", "n": 1087, "pct_dos_que_responderam_categoria": 12.1}, {"item": "Java", "n": 646, "pct_dos_que_responderam_categoria": 7.2}, {"item": "JavaScript", "n": 505, "pct_dos_que_responderam_categoria": 5.6}, {"item": "Visual Basic/VBA", "n": 501, "pct_dos_que_responderam_categoria": 5.6}], "bancos": [{"item": "PostgreSQL", "n": 2965, "pct_dos_que_responderam_categoria": 31.9}, {"item": "SQL Server", "n": 2963, "pct_dos_que_responderam_categoria": 31.9}, {"item": "Databricks", "n": 2612, "pct_dos_que_responderam_categoria": 28.1}, {"item": "Google BigQuery", "n": 2490, "pct_dos_que_responderam_categoria": 26.8}, {"item": "MySQL", "n": 2357, "pct_dos_que_responderam_categoria": 25.4}, {"item": "Amazon S3", "n": 2241, "pct_dos_que_responderam_categoria": 24.1}, {"item": "Oracle", "n": 1739, "pct_dos_que_responderam_categoria": 18.7}], "bi": [{"item": "Microsoft Power BI", "n": 5392, "pct_dos_que_responderam_categoria": 65.1}, {"item": "Looker", "n": 2204, "pct_dos_que_responderam_categoria": 26.6}, {"item": "Tableau", "n": 1687, "pct_dos_que_responderam_categoria": 20.4}, {"item": "Looker Studio", "n": 1584, "pct_dos_que_responderam_categoria": 19.1}, {"item": "Excel/Google Sheets", "n": 992, "pct_dos_que_responderam_categoria": 12.0}, {"item": "Metabase", "n": 819, "pct_dos_que_responderam_categoria": 9.9}], "cloud": [{"servico": "Amazon Web Services (AWS)", "n": 3453, "pct": 45.9}, {"servico": "Google Cloud (GCP)", "n": 2178, "pct": 29.0}, {"servico": "Azure (Microsoft)", "n": 1889, "pct": 25.1}], "tecnicas_cientista": [{"item": "Modelos de regressão", "n": 1410, "pct_dos_que_responderam_categoria": 70.1}, {"item": "Redes neurais/árvore", "n": 1191, "pct_dos_que_responderam_categoria": 59.3}, {"item": "Estatística clássica", "n": 1097, "pct_dos_que_responderam_categoria": 54.6}, {"item": "Clusterização", "n": 1068, "pct_dos_que_responderam_categoria": 53.1}, {"item": "Séries temporais", "n": 798, "pct_dos_que_responderam_categoria": 39.7}, {"item": "LLMs para negócio", "n": 710, "pct_dos_que_responderam_categoria": 35.3}]}, "q4": {"tendencia_uso": {"2023": {"n_respondentes_pergunta": 3772, "pct_nao_uso": 19.7, "pct_usa_alguma_solucao": 80.3}, "2024": {"n_respondentes_pergunta": 3617, "pct_nao_uso": 6.5, "pct_usa_alguma_solucao": 93.5}, "2025": {"n_respondentes_pergunta": 2105, "pct_nao_uso": 2.1, "pct_usa_alguma_solucao": 97.9}}, "uso_pessoal": [{"item": "Uso solução gratuita", "n": 4987, "pct": 58.6}, {"item": "Uso solução tipo Copilot", "n": 1930, "pct": 22.7}, {"item": "Empresa paga a solução", "n": 1828, "pct": 21.5}, {"item": "Uso e pago (próprio bolso)", "n": 1390, "pct": 16.3}], "prioridade": [{"resposta": "Sim, está entre nossas principais prioridades para os próximos 2-4 anos (com discussões de iniciativas e orçamentos de curto a médio prazo).", "n": 779, "pct": 30.0}, {"resposta": "Sim, é nossa principal prioridade como empresa (com foco executivo significativo e alocação de orçamento relevante).", "n": 500, "pct": 19.3}, {"resposta": "Não é uma iniciativa que estamos focando e não tem sido uma prioridade.", "n": 487, "pct": 18.8}, {"resposta": "Mais ou menos... É uma das várias iniciativas que estamos impulsionando, mas não é uma prioridade (tratam-se de iniciativas isoladas e com pouco foco).", "n": 470, "pct": 18.1}, {"resposta": "Mais ou menos... É uma das várias iniciativas que estamos impulsionando, mas não é uma prioridade (iniciativas isoladas e pouco foco).", "n": 275, "pct": 10.6}, {"resposta": "Não sei opinar sobre esse assunto.", "n": 82, "pct": 3.2}], "motivos_desuso": [{"item": "Falta de expertise/recursos", "n": 842, "pct": 36.8}, {"item": "Falta de casos de uso claros", "n": 825, "pct": 36.0}, {"item": "Dados não prontos pra IA", "n": 757, "pct": 33.1}, {"item": "Preocupação com segurança/privacidade", "n": 739, "pct": 32.3}, {"item": "ROI não comprovado", "n": 542, "pct": 23.7}, {"item": "Falta de confiabilidade (alucinação)", "n": 402, "pct": 17.6}]}, "q5": {"regiao_dist": [{"regiao": "Sudeste", "n": 8474, "pct": 62.3}, {"regiao": "Sul", "n": 2531, "pct": 18.6}, {"regiao": "Nordeste", "n": 1504, "pct": 11.0}, {"regiao": "Centro-oeste", "n": 907, "pct": 6.7}, {"regiao": "Norte", "n": 195, "pct": 1.4}], "salario_regiao": [{"regiao": "Sudeste", "salario_medio": 12174.0, "n": 7852}, {"regiao": "Centro-oeste", "salario_medio": 10876.0, "n": 825}, {"regiao": "Sul", "salario_medio": 10412.0, "n": 2384}, {"regiao": "Norte", "salario_medio": 9176.0, "n": 162}, {"regiao": "Nordeste", "salario_medio": 9159.0, "n": 1277}], "salario_modelo": [{"modelo": "Remoto", "salario_medio": 12522.0, "n": 5702}, {"modelo": "Híbrido", "salario_medio": 12366.0, "n": 4886}, {"modelo": "Presencial", "salario_medio": 7874.0, "n": 2252}], "evolucao_modelo": {"2023": {"Híbrido": 37.1, "Presencial": 16.6, "Remoto": 46.3}, "2024": {"Híbrido": 38.0, "Presencial": 16.3, "Remoto": 45.7}, "2025": {"Híbrido": 39.5, "Presencial": 20.8, "Remoto": 39.7}}}, "q6": {"criterios": [{"item": "Remuneração/Salário", "n": 10470, "pct": 81.9}, {"item": "Flexibilidade de trabalho remoto", "n": 7390, "pct": 57.8}, {"item": "Plano de carreira", "n": 4172, "pct": 32.6}, {"item": "Aprendizado/referências na área", "n": 3103, "pct": 24.3}, {"item": "Benefícios", "n": 3101, "pct": 24.2}, {"item": "Ambiente e clima de trabalho", "n": 2599, "pct": 20.3}], "insatisfacao": [{"item": "Salário não corresponde ao mercado", "n": 1698, "pct": 45.1}, {"item": "Falta de oportunidade de crescimento", "n": 1519, "pct": 40.4}, {"item": "Falta de maturidade analítica", "n": 1219, "pct": 32.4}, {"item": "Falta de aprendizado/referências", "n": 819, "pct": 21.8}, {"item": "Quer trabalhar em outra área", "n": 787, "pct": 20.9}, {"item": "Poucos benefícios", "n": 680, "pct": 18.1}], "desafios_gestao": [{"item": "Gerenciar expectativa do negócio", "n": 902, "pct": 35.3}, {"item": "Dividir tempo técnico/gestão", "n": 813, "pct": 31.9}, {"item": "Gerar valor pro negócio", "n": 704, "pct": 27.6}, {"item": "Qualidade/confiabilidade dos dados", "n": 694, "pct": 27.2}, {"item": "Levar inovação pra empresa", "n": 575, "pct": 22.5}, {"item": "Projetos multidisciplinares", "n": 573, "pct": 22.5}]}, "q_estrutura": {"setor": [{"setor": "Finanças ou Bancos", "n": 2560, "pct": 19.9}, {"setor": "Tecnologia/Fábrica de Software", "n": 2361, "pct": 18.4}, {"setor": "Área de Consultoria", "n": 1027, "pct": 8.0}, {"setor": "Varejo", "n": 953, "pct": 7.4}, {"setor": "Indústria", "n": 878, "pct": 6.9}, {"setor": "Educação", "n": 566, "pct": 4.4}, {"setor": "Outros", "n": 4496, "pct": 35.0}], "porte": [{"porte": "de 1 a 5", "n": 332, "pct": 2.6}, {"porte": "de 6 a 10", "n": 210, "pct": 1.6}, {"porte": "de 11 a 50", "n": 865, "pct": 6.7}, {"porte": "de 51 a 100", "n": 905, "pct": 7.1}, {"porte": "de 101 a 500", "n": 2121, "pct": 16.5}, {"porte": "de 501 a 1.000", "n": 1231, "pct": 9.6}, {"porte": "de 1.001 a 3.000", "n": 1445, "pct": 11.3}, {"porte": "Acima de 3.000", "n": 5730, "pct": 44.6}]}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('survey-data').textContent);
+
+const C = {
+  s1:'#2a78d6', s2:'#eb6834', s3:'#1baf7a', s4:'#eda100', s5:'#e87ba4', s6:'#4a3aa7',
+  good:'#0ca30c', critical:'#d03b3b',
+  gray:'#c3c2b7'
+};
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtMoney(n){ return 'R$ ' + Math.round(n).toLocaleString('pt-BR'); }
+function fmtPct1(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%'; }
+function fmtPct0(n){ return Math.round(n) + '%'; }
+
+/* Build a scaled item list: {label, value, pct(width relative to max), display} */
+function barItems(data, labelFn, valueFn, fmt, colorFn){
+  const vals = data.map(valueFn);
+  const max = Math.max(...vals, 0.0001);
+  return data.map((d,i)=>({
+    label: labelFn(d),
+    value: valueFn(d),
+    pct: Math.max(2, (valueFn(d)/max)*100),
+    display: fmt(valueFn(d)),
+    color: colorFn ? colorFn(i) : null
+  }));
+}
+
+function renderHBar(id, items, opts={}){
+  const rows = items.map(it => `
+    <div class="hbar-row">
+      <div class="hbar-label" title="${escapeHtml(it.label)}">${escapeHtml(it.label)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${it.pct}%;background:${it.color||opts.color||C.s1}"></div></div>
+      <div class="hbar-value">${it.display}</div>
+    </div>`).join('');
+  document.getElementById(id).innerHTML = `<div class="hbar">${rows}</div>`;
+}
+
+function renderVBar(id, items, opts={}){
+  const cols = items.map(it => `
+    <div class="vbar-col">
+      <div class="vbar-value">${it.display}</div>
+      <div class="vbar-track"><div class="vbar-fill" style="height:${it.pct}%;background:${it.color||opts.color||C.s1}"></div></div>
+      <div class="vbar-label">${escapeHtml(it.label)}</div>
+    </div>`).join('');
+  document.getElementById(id).innerHTML = `<div class="vbar">${cols}</div>`;
+}
+
+function renderDonut(id, data, labelFn, pctFn, colors){
+  let cum = 0;
+  const stops = [];
+  const legendItems = data.map((d,i)=>{
+    const pct = pctFn(d);
+    const color = colors[i % colors.length];
+    const start = cum; cum += pct;
+    stops.push(`${color} ${start}% ${cum}%`);
+    return {label: labelFn(d), pct, color};
+  });
+  const legend = legendItems.map(it => `
+    <div class="li"><span class="dot" style="background:${it.color}"></span><span class="lbl" title="${escapeHtml(it.label)}">${escapeHtml(it.label)}</span><span class="pct">${it.pct.toFixed(1)}%</span></div>`).join('');
+  document.getElementById(id).innerHTML =
+    `<div class="donut-wrap"><div class="donut-circle" style="background:conic-gradient(${stops.join(',')})"></div><div class="donut-legend">${legend}</div></div>`;
+}
+
+function renderLineChart(id, xLabels, series, opts={}){
+  const W = 560, H = 190;
+  const leftPad=32, rightPad=18, topPad=12, bottomPad=24;
+  const plotW = W-leftPad-rightPad, plotH = H-topPad-bottomPad;
+  const allVals = series.flatMap(s=>s.data);
+  const maxV = opts.max || Math.ceil(Math.max(...allVals)/10)*10;
+  const n = xLabels.length;
+  const xStep = n>1 ? plotW/(n-1) : 0;
+  let svg = `<svg class="linechart-svg" viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">`;
+  const gridN = 4;
+  for(let g=0; g<=gridN; g++){
+    const y = topPad + plotH - (g/gridN)*plotH;
+    svg += `<line x1="${leftPad}" x2="${leftPad+plotW}" y1="${y}" y2="${y}" stroke="#e6e6e2" stroke-width="1"/>`;
+    svg += `<text x="${leftPad-6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#898781">${Math.round(g/gridN*maxV)}%</text>`;
+  }
+  xLabels.forEach((lab,i)=>{
+    const x = leftPad + i*xStep;
+    svg += `<text x="${x.toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="#898781">${escapeHtml(lab)}</text>`;
+  });
+  series.forEach(s=>{
+    const pts = s.data.map((v,i)=>[leftPad+i*xStep, topPad+plotH-(v/maxV)*plotH]);
+    const d = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    pts.forEach((p,i)=>{
+      svg += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="${s.color}" stroke="#fcfcfb" stroke-width="1.5"><title>${escapeHtml(s.label)} ${xLabels[i]}: ${s.data[i]}%</title></circle>`;
+    });
+  });
+  svg += `</svg>`;
+  const legend = series.map(s=>`<div class="li"><span class="dot" style="background:${s.color}"></span>${escapeHtml(s.label)}</div>`).join('');
+  document.getElementById(id).innerHTML = `<div class="linechart-wrap">${svg}<div class="linechart-legend">${legend}</div></div>`;
+}
+
+/* ================= Q1 — Estrutura do mercado ================= */
+(function(){
+  const d = DATA.q_estrutura.setor;
+  renderDonut('chartEstSetor', d, x=>x.setor, x=>x.pct, [C.s1,C.s2,C.s3,C.s4,C.s5,C.s6,C.gray]);
+})();
+(function(){
+  const d = DATA.q_estrutura.porte;
+  renderHBar('chartEstPorte', barItems(d, x=>x.porte, x=>x.pct, fmtPct1), {color:C.s6});
+})();
+(function(){
+  const d = DATA.q5.regiao_dist;
+  renderDonut('chartEstRegiao', d, x=>x.regiao, x=>x.pct, [C.s1,C.s3,C.s4,C.s2,C.s5]);
+})();
+(function(){
+  const order = ['Júnior','Pleno','Sênior','Especialista/Staff+'];
+  const d = order.map(s => DATA.q1.senioridade_dist.find(x=>x.senioridade===s));
+  renderDonut('chartEstSenioridade', d, x=>x.senioridade, x=>x.pct, [C.s4,C.s3,C.s1,C.s6]);
+})();
+(function(){
+  const d = DATA.q2.genero_dist;
+  renderDonut('chartEstGenero', d, x=>x.genero, x=>x.pct, [C.s1,C.s5,C.gray,'#d8d6cd']);
+})();
+(function(){
+  const d = [{modelo:'Remoto', pct:44.4},{modelo:'Híbrido', pct:38.1},{modelo:'Presencial', pct:17.5}];
+  renderDonut('chartEstModelo', d, x=>x.modelo, x=>x.pct, [C.s1,C.s3,C.s2]);
+})();
+
+/* ================= Q2 — Perfis ================= */
+(function(){
+  const d = DATA.q1.cargos_volume;
+  renderHBar('chartCargosVolume', barItems(d, x=>x.cargo.split('/')[0], x=>x.pct, fmtPct1), {color:C.s1});
+})();
+(function(){
+  const d = DATA.q1.salario_cargo;
+  renderHBar('chartSalarioCargo', barItems(d, x=>x.cargo.split('/')[0], x=>x.salario_medio, fmtMoney), {color:C.s2});
+})();
+(function(){
+  const order = ['Júnior','Pleno','Sênior','Especialista/Staff+'];
+  const d = order.map(s => DATA.q1.senioridade_dist.find(x=>x.senioridade===s));
+  renderDonut('chartSenioridadeDist', d, x=>x.senioridade, x=>x.pct, [C.s4,C.s3,C.s1,C.s6]);
+})();
+(function(){
+  const order = ['Júnior','Pleno','Sênior','Especialista/Staff+'];
+  const d = order.map(s => DATA.q1.salario_senioridade.find(x=>x.senioridade===s));
+  renderVBar('chartSalarioSenioridade', barItems(d, x=>x.senioridade, x=>x.salario_medio, fmtMoney), {color:C.s1});
+})();
+
+/* ================= Q3 — Diversidade ================= */
+(function(){
+  const anos = Object.keys(DATA.q2.genero_evolucao).sort();
+  renderLineChart('chartGeneroEvolucao', anos, [
+    {label:'Masculino', data: anos.map(a=>DATA.q2.genero_evolucao[a].Masculino), color:C.s1},
+    {label:'Feminino', data: anos.map(a=>DATA.q2.genero_evolucao[a].Feminino), color:C.s5},
+  ], {max:100});
+})();
+(function(){
+  const order = ['Júnior','Pleno','Sênior','Especialista/Staff+'];
+  const d = order.map(s => ({senioridade:s, pct: DATA.q2.genero_senioridade[s].Feminino}));
+  renderVBar('chartGeneroSenioridade', barItems(d, x=>x.senioridade, x=>x.pct, fmtPct1), {color:C.s5});
+})();
+(function(){
+  const d = DATA.q2.raca_dist.filter(x=>x.pct>=0.2);
+  renderHBar('chartRacaDist', barItems(d, x=>x.grupo, x=>x.pct, fmtPct1), {color:C.s6});
+})();
+(function(){
+  const g = DATA.q2.salario_genero;
+  const d = [{genero:'Masculino', v:g.Masculino.salario_medio, c:C.s1},{genero:'Feminino', v:g.Feminino.salario_medio, c:C.s5}];
+  renderVBar('chartSalarioGenero', barItems(d, x=>x.genero, x=>x.v, fmtMoney, i=>d[i].c));
+})();
+
+/* ================= Q4 — Tecnologias ================= */
+(function(){
+  const d = DATA.q3.linguagens;
+  renderHBar('chartLinguagens', barItems(d, x=>x.item, x=>x.pct_dos_que_responderam_categoria, fmtPct1), {color:C.s1});
+})();
+(function(){
+  const d = DATA.q3.bancos;
+  renderHBar('chartBancos', barItems(d, x=>x.item, x=>x.pct_dos_que_responderam_categoria, fmtPct1), {color:C.s3});
+})();
+(function(){
+  const d = DATA.q3.bi;
+  renderHBar('chartBI', barItems(d, x=>x.item, x=>x.pct_dos_que_responderam_categoria, fmtPct1), {color:C.s4});
+})();
+(function(){
+  const d = DATA.q3.cloud;
+  renderDonut('chartCloud', d, x=>x.servico.replace(' (AWS)','').replace(' (GCP)','').replace(' (Microsoft)',''), x=>x.pct, [C.s2,C.s3,C.s1]);
+})();
+(function(){
+  const d = DATA.q3.tecnicas_cientista;
+  renderHBar('chartTecnicas', barItems(d, x=>x.item, x=>x.pct_dos_que_responderam_categoria, fmtPct1), {color:C.s6});
+})();
+
+/* ================= Q5 — IA generativa ================= */
+(function(){
+  const anos = Object.keys(DATA.q4.tendencia_uso).sort();
+  const d = anos.map(a=>({ano:a, pct: DATA.q4.tendencia_uso[a].pct_nao_uso}));
+  renderVBar('chartTendenciaIA', barItems(d, x=>x.ano, x=>x.pct, fmtPct1), {color:C.critical});
+})();
+(function(){
+  const d = DATA.q4.uso_pessoal;
+  renderHBar('chartUsoPessoal', barItems(d, x=>x.item, x=>x.pct, fmtPct1), {color:C.s1});
+})();
+(function(){
+  const labels = ['Principal prioridade','Entre as principais (2-4 anos)','Iniciativa isolada, pouco foco','Não é prioridade','Não sabe opinar'];
+  const p = DATA.q4.prioridade;
+  const vals = [p[1].pct, p[0].pct, (p[3].pct+p[4].pct), p[2].pct, p[5].pct];
+  const d = labels.map((l,i)=>({label:l, pct:vals[i]}));
+  renderHBar('chartPrioridadeIA', barItems(d, x=>x.label, x=>x.pct, fmtPct1), {color:C.s3});
+})();
+(function(){
+  const d = DATA.q4.motivos_desuso;
+  renderHBar('chartMotivosDesuso', barItems(d, x=>x.item, x=>x.pct, fmtPct1), {color:C.critical});
+})();
+
+/* ================= Q6 — Regiões / senioridade / modelo ================= */
+(function(){
+  const d = DATA.q5.salario_regiao;
+  renderHBar('chartSalarioRegiao', barItems(d, x=>x.regiao, x=>x.salario_medio, fmtMoney), {color:C.s1});
+})();
+(function(){
+  const d = DATA.q5.salario_modelo;
+  const colorMap = {Remoto:C.s1, 'Híbrido':C.s3, Presencial:C.s2};
+  renderVBar('chartSalarioModelo', barItems(d, x=>x.modelo, x=>x.salario_medio, fmtMoney, i=>colorMap[d[i].modelo]));
+})();
+(function(){
+  const anos = Object.keys(DATA.q5.evolucao_modelo).sort();
+  renderLineChart('chartEvolucaoModelo', anos, [
+    {label:'Remoto', data: anos.map(a=>DATA.q5.evolucao_modelo[a].Remoto), color:C.s1},
+    {label:'Híbrido', data: anos.map(a=>DATA.q5.evolucao_modelo[a].Híbrido), color:C.s3},
+    {label:'Presencial', data: anos.map(a=>DATA.q5.evolucao_modelo[a].Presencial), color:C.s2},
+  ], {max:60});
+})();
+
+/* ================= Q7 — Oportunidades e desafios ================= */
+(function(){
+  const d = DATA.q6.criterios;
+  renderHBar('chartCriterios', barItems(d, x=>x.item, x=>x.pct, fmtPct1), {color:C.s1});
+})();
+(function(){
+  const d = DATA.q6.insatisfacao;
+  renderHBar('chartInsatisfacao', barItems(d, x=>x.item, x=>x.pct, fmtPct1), {color:C.critical});
+})();
+(function(){
+  const d = DATA.q6.desafios_gestao;
+  renderHBar('chartDesafiosGestao', barItems(d, x=>x.item, x=>x.pct, fmtPct1), {color:C.s6});
+})();
+</script>
+</body>
+</html>
